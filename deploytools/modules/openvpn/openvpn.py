@@ -95,6 +95,10 @@ class OpenvpnModule(ModuleBase):
         '''
             @Brief: 安装openvpn
         '''
+        with settings(warn_only=True):
+            sudo('systemctl stop firewalld')
+            sudo('systemctl mask firewalld')
+            sudo('setenforce 0')
         put(
             local_path=join(CURRENT_DIR, 'pkcs11-helper-1.11-3.el7.x86_64.rpm'), 
             remote_path='/tmp/pkcs11-helper.rpm',
