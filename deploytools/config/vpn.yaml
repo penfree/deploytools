@@ -1,0 +1,40 @@
+---
+#Need Change
+resources:
+    s1:
+        hostname: hdp0.dev-bdmd.com
+        ip: 192.168.100.18
+    s2:
+        hostname: hdp1.dev-bdmd.com
+        ip: 192.168.100.22
+    #s3:
+    #    hostname: hdp2.dev-bdmd.com
+    #    ip: 192.168.100.23
+    #s4:
+    #    hostname: hdp3.dev-bdmd.com
+    #    ip: 192.168.100.17
+#Need Change
+domain: dev-bdmd.com
+#Need Change
+modules:
+    cbasic:
+        yum:
+            use_aliyun_repo: true
+        pip:
+            index: "http://mirrors.aliyun.com/pypi/simple/"
+            trusted_host: mirrors.aliyun.com
+        ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDnko3/WSc0HXB80m8ZkTmXBc+MjB4TaZZvapYPMMvs4MYtTpJhlxqjNAO5zYIx9oyLXmCMuE60iZaI00QnXEuGEaJfrFYr/lpApOnOEiBP/GyG89hTjwKnEFyn9Qze0MsMcBGu4BN4VwIic5aXiZwHQ5heM8Tu2jjJi6Opbcmp3YtuED4lwnYBDlf8etiW2EwNfaDH2y3f/X/rtKRJ7eMWCL0oDe7iF1oTUQDhiSND3jcfyPvoK597sbEz0ne15D3UygPSyFvtMO+8gDJwzdduIUCa6iSM18igxDpEoWJmBl2cst2x/b2KADjF9YHkHNoKmHRrfynfhmqXiMOiwurl root@s1"
+    openvpn:
+        server_ip: tun.iyoudoctor.com
+        server_port: 10190
+        clients:
+            - name: s1
+              cert: /Users/f/hospital/yuhuatai/vpn0.yuhuatai-bdmd.com.cert.pem
+              key: /Users/f/hospital/yuhuatai/vpn0.yuhuatai-bdmd.com.key.pem
+    dns-server:
+        resources:
+            - s1
+        subnet: 192.168.100.0/24
+        records:
+            - ip: 192.168.100.220
+              hostname: kubeapi

@@ -1,0 +1,11 @@
+$TTL    604800
+@   IN  SOA %(domain)s. root.%(domain)s. (
+                  2     ; Serial
+             604800     ; Refresh
+              86400     ; Retry
+            2419200     ; Expire
+             604800 )   ; Negative Cache TTL
+;
+@   IN  NS  ns.%(domain)s.
+;
+%(records)s

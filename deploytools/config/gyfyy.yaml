@@ -1,0 +1,28 @@
+---
+resources:
+    s1:
+        hostname: s1.gyfyy-bdmd.com
+        ip: 172.172.3.1
+    s2:
+        hostname: s2.gyfyy-bdmd.com
+        ip: 172.172.3.2
+    s3:
+        hostname: s3.gyfyy-bdmd.com
+        ip: 172.172.3.3
+    s4:
+        hostname: s4.gyfyy-bdmd.com
+        ip: 172.172.3.4
+    s5:
+        hostname: s5.gyfyy-bdmd.com
+        ip: 172.172.3.5
+    s6:
+        hostname: s6.gyfyy-bdmd.com
+        ip: 172.172.3.6
+
+resgroups:
+    namenode:
+        - s0
+        - s1
+modules:
+    saltstack:
+        master: s0

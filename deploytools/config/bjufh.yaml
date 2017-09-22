@@ -1,0 +1,100 @@
+---
+#Need Change
+resources:
+    s1:
+        hostname: s1.bjufh-bdmd.com
+        ip: 10.1.1.31
+    s2:
+        hostname: s2.bjufh-bdmd.com
+        ip: 10.1.1.32
+    s3:
+        hostname: s3.bjufh-bdmd.com
+        ip: 10.1.1.33
+    s4:
+        hostname: s4.bjufh-bdmd.com
+        ip: 10.1.1.34
+#Need Change
+domain: bjufh-bdmd.com
+#Need Change
+resgroups:
+    master:
+        - s1
+        - s2
+        - s3
+    slave:
+        - s1
+        - s2
+        - s3
+        - s4
+modules:
+    testmodule:
+        manual_only: True
+    debian-repo:
+        priority: 0
+    pypi:
+        priority: 0
+        offline:
+            web_dir: "/var/www/pypi"
+            server: s1
+            port: 20004
+    ssh-root-key:
+        priority: 1
+    basic:
+        priority: 1
+    dns-server:
+        priority: 1
+        #Need Change
+        resources:
+            - s1
+        #Need Change
+        subnet: 10.1.1.0/24
+        #May need to delete
+        #zones:
+        #    - name: bdmd.com
+        #      type: forward
+        #      forwarders: "{192.168.50.2;}"
+        options:
+            directory: "\"/var/cache/bind\""
+            #Need Change
+            forwarders: "{223.5.5.5;223.6.6.6;}"
+            dnssec-validation: no
+            auth-nxdomain: on
+            #Need Change
+            allow-query: "{localhost;localnets;10.1.1.0/24;}"
+    vbox:
+        manual_only: True
+        resources:
+            - s1
+    etcd:
+        require: 
+            - dns-server
+        resources:
+            - s1
+            - s2
+            - s3
+        #Need Change
+        cluster: 'bjufh'
+        datadir: '/var/lib/etcd'
+        logdir: '/var/log/etcd'
+    flannel:
+        require:
+            - etcd
+        network: '10.100.0.0/16'
+        logdir: '/var/log/flannel'
+    docker:
+        require:
+            - flannel
+            - nfs
+    cxoracle:
+        #Need Change
+        manual_only: True
+        resources:
+            - s1
+        java_home: /usr/jdk64/jdk1.8.0_60
+        jdk_tar_path: /data/vmshare/software/jdk-8u60-linux-x64.tar.gz
+        instant_client_sdk: /data/vmshare/software/instantclient-sdk-linux-x86-64-11.2.0.2.0.zip
+        instant_client_basic: /data/vmshare/software/instantclient-basic-linux-x86-64-11.2.0.2.0.zip
+    nfs:
+        server: s1
+    html2pdf:
+    ca:

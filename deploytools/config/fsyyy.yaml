@@ -1,0 +1,98 @@
+---
+#Need Change
+resources:
+    s1:
+        hostname: s1.fsyyy-bdmd.com
+        ip: 192.168.100.68
+    s2:
+        hostname: s2.fsyyy-bdmd.com
+        ip: 192.168.100.69
+    s3:
+        hostname: s3.fsyyy-bdmd.com
+        ip: 192.168.100.94
+    s4:
+        hostname: s4.fsyyy-bdmd.com
+        ip: 192.168.100.95
+    s5:
+        hostname: s5.fsyyy-bdmd.com
+        ip: 192.168.100.96
+    s6:
+        hostname: s6.fsyyy-bdmd.com
+        ip: 192.168.100.97
+    s7:
+        hostname: s7.fsyyy-bdmd.com
+        ip: 192.168.100.98
+    s8:
+        hostname: s8.fsyyy-bdmd.com
+        ip: 192.168.100.99
+#Need Change
+domain: fsyyy-bdmd.com
+#Need Change
+modules:
+    testmodule:
+        manual_only: True
+    debian-repo:
+        priority: 0
+    pypi:
+        priority: 0
+        offline:
+            web_dir: "/var/www/pypi"
+            server: s1
+            port: 20004
+    ssh-root-key:
+        priority: 1
+    basic:
+        priority: 1
+    dns-server:
+        priority: 1
+        #Need Change
+        resources:
+            - s1
+        #Need Change
+        subnet: 192.168.100.0/24
+        #May need to delete
+        #zones:
+        #    - name: bdmd.com
+        #      type: forward
+        #      forwarders: "{192.168.50.2;}"
+        options:
+            directory: "\"/var/cache/bind\""
+            #Need Change
+            forwarders: "{223.5.5.5;223.6.6.6;}"
+            dnssec-validation: no
+            auth-nxdomain: on
+            #Need Change
+            allow-query: "{localhost;localnets;192.168.100.0/24;}"
+    vbox:
+        resources:
+            - s1
+    etcd:
+        require: 
+            - dns-server
+        resources:
+            - s1
+            - s2
+            - s3
+        #Need Change
+        cluster: 'fsyyy'
+        datadir: '/var/lib/etcd'
+        logdir: '/var/log/etcd'
+    flannel:
+        require:
+            - etcd
+        network: '10.100.0.0/16'
+        logdir: '/var/log/flannel'
+    docker:
+        require:
+            - flannel
+            - nfs
+        images:
+          - /data/docker/ambari-image.tar
+          - /data/docker/elasticsearch.tar
+          - /data/docker/mongodb.tar
+          - /data/docker/overall.tar
+          - /data/docker/redis.tar
+    nfs:
+        server: s1
+    html2pdf:
+    ca:

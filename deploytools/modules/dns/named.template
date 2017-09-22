@@ -1,0 +1,13 @@
+$TTL 86400
+@   IN  SOA     %(domain)s. root.%(domain)s. (
+        2011071001  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          ns.%(domain)s.
+ns	IN  A 		%(serverIP)s
+;
+%(records)s
+;

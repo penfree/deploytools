@@ -1,0 +1,73 @@
+---
+#Need Change
+resources:
+    s1:
+        hostname: hadoop0.dev-bdmd.com
+        ip: 192.168.100.4
+    s2:
+        hostname: hadoop1.dev-bdmd.com
+        ip: 192.168.100.5
+    s3:
+        hostname: hadoop2.dev-bdmd.com
+        ip: 192.168.100.6
+    s4:
+        hostname: hadoop3.dev-bdmd.com
+        ip: 192.168.100.13
+#Need Change
+domain: dev-bdmd.com
+#Need Change
+modules:
+    testmodule:
+        manual_only: True
+    basic:
+        priority: 0
+        apt:
+            sources:
+                - "deb http://mirrors.aliyun.com/ubuntu/ trusty main restricted universe multiverse"
+                - "deb http://mirrors.aliyun.com/ubuntu/ trusty-updates main restricted universe multiverse"
+                - "deb http://mirrors.aliyun.com/ubuntu/ trusty-security main restricted universe multiverse"
+            use_proxy: true
+        pip:
+            index: "http://mirrors.aliyun.com/pypi/simple/"
+            trusted_host: mirrors.aliyun.com
+            use_proxy: true
+        router: s1
+        http_proxy: http://192.168.50.12:3128
+        ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDnko3/WSc0HXB80m8ZkTmXBc+MjB4TaZZvapYPMMvs4MYtTpJhlxqjNAO5zYIx9oyLXmCMuE60iZaI00QnXEuGEaJfrFYr/lpApOnOEiBP/GyG89hTjwKnEFyn9Qze0MsMcBGu4BN4VwIic5aXiZwHQ5heM8Tu2jjJi6Opbcmp3YtuED4lwnYBDlf8etiW2EwNfaDH2y3f/X/rtKRJ7eMWCL0oDe7iF1oTUQDhiSND3jcfyPvoK597sbEz0ne15D3UygPSyFvtMO+8gDJwzdduIUCa6iSM18igxDpEoWJmBl2cst2x/b2KADjF9YHkHNoKmHRrfynfhmqXiMOiwurl root@s1"
+    dns-server:
+        priority: 1
+        #Need Change
+        resources:
+            - s1
+        #Need Change
+        subnet: 192.168.100.0/24
+        inner_dns:
+            - 223.5.5.5
+            - 223.6.6.6
+    vbox:
+        #Need Change
+        resources:
+            - s1
+        #Need Change
+        repo: "http://download.virtualbox.org/virtualbox/debian"
+        data_dir: "/root/vbox"
+    etcd:
+        require: 
+            - dns-server
+        resources:
+            - s1
+            - s2
+            - s3
+        #Need Change
+        cluster: 'dev'
+        datadir: '/var/lib/etcd'
+        logdir: '/var/log/etcd'
+    flannel:
+        require:
+            - etcd
+        network: '172.16.0.0/16'
+        logdir: '/var/log/flannel'
+    docker:
+        require:
+            - flannel
+        repo: 'https://apt.dockerproject.org/repo'
