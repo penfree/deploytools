@@ -1,0 +1,24 @@
+---
+k8s:
+  interface: eth0
+  dockerVersion: 1.12.6
+  k8sVersion: 1.7.5
+  imagePath: /root/k8s.tar
+  master1: 
+    ip: 192.168.100.18
+    hostname: hdp0.dev-bdmd.com
+  master2: 
+    ip: 192.168.100.22
+    hostname: hdp1.dev-bdmd.com
+  master3: 
+    ip: 192.168.100.23
+    hostname: hdp2.dev-bdmd.com
+  podSubnet: 10.244.0.0/16
+  virtualIP: 192.168.100.220
+  slaves:
+    - 192.168.100.17
+ssh:
+  user: root
+  identityFile: /Users/f/cert/hadoop-dev.key
+  password: ''
+  

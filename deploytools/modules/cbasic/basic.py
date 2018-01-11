@@ -221,14 +221,19 @@ trusted-host={trusted_host}
         execute(self.installCA, hosts=self.getHostList(context))
 
         # 安装基本软件包
-        execute(self.installYumPackages, hosts=self.getHostList(context))
+        execute(self.installPackages, hosts=self.getHostList(context))
 
         return True
 
     @retry(3)
-    def installYumPackages(self):
+    def installPackages(self):
         with settings(warn_only=True):
-            ret = sudo('yum install -y wget lrzsz vim zip telnet net-tools rsync')
+            ret = sudo('yum install -y wget lrzsz vim zip telnet net-tools rsync libxslt-devel python-devel gcc glibc-devel libcap-devel python-pycurl nfs-utils')
+            if ret.failed:
+                return False
+            else:
+                return True
+            ret = sudo('pip install ujson simplejson thrift python-dateutil pyes pymongo lxml mock pyth Jinja2 pyin requestes gevent==1.1rc3 pyyaml redis hiredis happybase ply arrow pymime haigha pillow captcha pdfkit python-prctl pyopenssl pycrypto netifaces cryptography cchardet numpy pandas elasticsearch==2.4.0 xlrd jieba numpy')
             if ret.failed:
                 return False
             else:

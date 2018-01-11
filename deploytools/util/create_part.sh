@@ -26,7 +26,7 @@ while [[ $# -gt 0 ]];do
     fi
 
     #get uuid
-    UUID=`blkid | grep $PART | sed 's/.*UUID="//' | sed 's/".*//'`
+    UUID=`blkid | grep $PART | sed 's/.* UUID="//' | sed 's/".*//'`
     echo "UUID is $UUID"
 
     #mount disk

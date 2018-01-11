@@ -1,0 +1,26 @@
+---
+k8s:
+  interface: em1
+  dockerVersion: 1.12.6
+  k8sVersion: 1.7.5
+  imagePath: /root/k8s.tar
+  apiDNSName: kubeapi.yuhuatai-bdmd.com
+  master1: 
+    ip: 192.168.10.45
+    hostname: s1.yuhuatai-bdmd.com
+  master2: 
+    ip: 192.168.10.46
+    hostname: s2.yuhuatai-bdmd.com
+  master3: 
+    ip: 192.168.10.47
+    hostname: s3.yuhuatai-bdmd.com
+  podSubnet: 10.244.0.0/16
+  virtualIP: 192.168.10.49
+  slaves:
+    - 192.168.10.48
+ssh:
+  user: root
+  identityFile: /Users/f/cert/pcloud.key
+  password: ''
+  gateway: yuhuatai.bdmd.com
+  
