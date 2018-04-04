@@ -59,14 +59,6 @@ def getArguments():
     main_parser.add_argument("--skip-failed-module", action='store_true', default=False,
                              dest="skip_failed_module", help="skip when module deployment failed")
 
-    # 单独安装指定的包
-    basic_parser = subparsers.add_parser('basic', help='install packages')
-    basic_parser.add_argument('--install-host', dest='install_host',
-                              help='which host [resource name in config file] to install the specified package, default to resources in config file', nargs='*')
-    basic_parser.add_argument(
-        '--pkg-type', dest='pkg_type', choices=['pip', 'deb'], help='pkg_type')
-    basic_parser.add_argument(
-        '--pkg-name', dest='pkg_name', help='package name', nargs='*')
 
     return parser.parse_args()
 

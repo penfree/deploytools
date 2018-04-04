@@ -233,7 +233,7 @@ trusted-host={trusted_host}
                 return False
             else:
                 return True
-            ret = sudo('pip install ujson simplejson thrift python-dateutil pyes pymongo lxml mock pyth Jinja2 pyin requestes gevent==1.1rc3 pyyaml redis hiredis happybase ply arrow pymime haigha pillow captcha pdfkit python-prctl pyopenssl pycrypto netifaces cryptography cchardet numpy pandas elasticsearch==2.4.0 xlrd jieba numpy')
+            ret = sudo('pip install ujson simplejson thrift python-dateutil pyes pymongo lxml mock pyth Jinja2 pyin requests gevent==1.1rc3 pyyaml redis hiredis happybase ply arrow pymime haigha pillow captcha pdfkit python-prctl pyopenssl pycrypto netifaces cryptography cchardet numpy pandas elasticsearch==2.4.0 xlrd jieba numpy')
             if ret.failed:
                 return False
             else:

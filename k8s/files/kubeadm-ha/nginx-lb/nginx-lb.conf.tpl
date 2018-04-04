@@ -1,4 +1,3 @@
-
 user  nginx;
 worker_processes  1;
 
@@ -32,14 +31,14 @@ http {
 }
 
 stream {
-	upstream apiserver {
-	    server %(masterIP1)s:6443 weight=5 max_fails=3 fail_timeout=30s;
-	    server %(masterIP2)s:6443 weight=5 max_fails=3 fail_timeout=30s;
-	    server %(masterIP3)s:6443 weight=5 max_fails=3 fail_timeout=30s;
-	}
+    upstream apiserver {
+        server K8SHA_IP1:6443 weight=5 max_fails=3 fail_timeout=30s;
+        server K8SHA_IP2:6443 weight=5 max_fails=3 fail_timeout=30s;
+        server K8SHA_IP3:6443 weight=5 max_fails=3 fail_timeout=30s;
+    }
 
     server {
-        listen %(haPort)s;
+        listen 16443;
         proxy_connect_timeout 1s;
         proxy_timeout 3s;
         proxy_pass apiserver;

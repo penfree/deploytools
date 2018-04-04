@@ -17,6 +17,8 @@ import os
 from os.path import join
 import logging
 import re
+from preinstall import basicConfig
+import time
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FILE_DIR = os.path.join(CURRENT_DIR, 'files')
@@ -27,40 +29,40 @@ def getArgument():
     parser.add_argument('-q', dest='quiet', action='store_true')
     parser.add_argument('--config', dest='config_file', required=True)
     parser.add_argument('--slave', dest='slave', help='要加入的slave ip')
+    parser.add_argument('--init', dest='init', help='是否需要初始化', action='store_true', default=False)
+
     return parser.parse_args()
 
 
-def getToken(config):
-    ret = sudo('kubeadm token list')
-    for line in ret.stdout.split('\n'):
-        words = re.split('\s+', line)
-        if words[0] == 'TOKEN':
-            continue
-        else:
-            return words[0]
-    return None
+def joinCluster(config):
+    sudo('kubeadm reset')
+    sudo('kubeadm join --ignore-preflight-errors=Swap --token %s %s:%s --discovery-token-ca-cert-hash %s' % (config.Token, config.Master1.ip, 6443, config.TokenHash))
 
+    # 将slave节点上server修改为高可用的虚拟IP和负载均衡的16443端口
+    sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/bootstrap-kubelet.conf'.format(master=config.Master1.ip, vip=config.VirtualIP))
+    sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/bootstrap-kubelet.conf'.format(master=config.Master2.ip, vip=config.VirtualIP))
+    sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/bootstrap-kubelet.conf'.format(master=config.Master3.ip, vip=config.VirtualIP))
 
-def joinCluster(config, token):
-    sudo('kubeadm join --token %s %s:%s' % (token, config.VirtualIP, config.ApiHAPort))
+    time.sleep(5) 
+
+    sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/kubelet.conf'.format(master=config.Master1.ip, vip=config.VirtualIP))
+    sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/kubelet.conf'.format(master=config.Master2.ip, vip=config.VirtualIP))
+    sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/kubelet.conf'.format(master=config.Master3.ip, vip=config.VirtualIP))
+    sudo('systemctl restart docker kubelet')
 
 
 def main():
     args = getArgument()
     config = InstallConfig.loadConfig(args.config_file)
     config.initFabric(not args.quiet)
-
-    # 从master1上获取token
-    result = execute(getToken, config, hosts=[config.Master1.ip])
-    token = result.get(config.Master1.ip)
-    if not token:
-        raise ValueError('Cannot get Token')
-    else:
-        print 'Token: %s' % token
     
     if args.slave:
-        execute(joinCluster, config, token, hosts=[args.slave])
+        if args.init:
+            execute(basicConfig, config, hosts=[args.slave])
+        execute(joinCluster, config, hosts=[args.slave])
     else:
-        execute(joinCluster, config, token, hosts=config.Slaves)
+        if args.init:
+            execute(basicConfig, config, hosts=config.Slaves)
+        execute(joinCluster, config, hosts=config.Slaves)
 
 main()

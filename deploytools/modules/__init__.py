@@ -13,17 +13,15 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 from dns.dns import DNSModule
-from basic.basic import BasicModule
+#from basic.basic import BasicModule
 from testmodule.testmodule import TestModule
-from vbox.vbox import VboxModule
 from cbasic.basic import CentosBasicModule
 from openvpn.openvpn import OpenvpnModule
 
 NAME2MODULE = {
     'testmodule': TestModule,
     'openvpn': OpenvpnModule,
-    'basic': BasicModule,
+    #'basic': BasicModule,
     'dns-server': DNSModule,
-    'vbox': VboxModule,
     'cbasic': CentosBasicModule,
 }

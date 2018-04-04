@@ -1,24 +1,28 @@
 ---
 k8s:
   interface: eth0
-  dockerVersion: 1.12.6
-  k8sVersion: 1.7.5
-  imagePath: /root/k8s.tar
+  dockerVersion: 17.03.1.ce-1.el7.centos
+  dockerComposeVersion: 1.9.0
+  k8sVersion: 1.9.3
+  imagePath: /root/k8s.tar.gz
   master1: 
-    ip: 192.168.100.18
-    hostname: hdp0.dev-bdmd.com
+    ip: 192.168.100.17
+    hostname: k8s0.dev-bdmd.com
   master2: 
-    ip: 192.168.100.22
-    hostname: hdp1.dev-bdmd.com
+    ip: 192.168.100.18
+    hostname: k8s1.dev-bdmd.com
   master3: 
-    ip: 192.168.100.23
-    hostname: hdp2.dev-bdmd.com
+    ip: 192.168.100.22
+    hostname: k8s2.dev-bdmd.com
   podSubnet: 10.244.0.0/16
+  svcSubnet: 10.96.0.0/12
   virtualIP: 192.168.100.220
   slaves:
-    - 192.168.100.17
+    - 192.168.100.23
+  networkGateway: 192.168.100.1
+  token: "7f276c.0741d82a5337f526"
+  tokenHash: "sha256:705141982bee47aa2e260694253bdb04b2e08639b335e0d0376da999c6feb39c"
 ssh:
   user: root
   identityFile: /Users/f/cert/hadoop-dev.key
   password: ''
-  

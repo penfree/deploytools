@@ -29,31 +29,59 @@ def getArgument():
     return parser.parse_args()
 
 
+def prepareConfig(config):
+    """准备配置文件
+    """
+    put(local_path=join(FILE_DIR, 'kubeadm-ha'), remote_path='/root/', use_sudo=True)
+
+    if env.host_string == config.Master1.ip:
+        name = 'etcd1'
+        priority = 102
+    elif env.host_string == config.Master2.ip:
+        name = 'etcd2'
+        priority = 101
+    elif env.host_string == config.Master3.ip:
+        name = 'etcd3'
+        priority = 100
+    else:
+        raise ValueError('unknow ip %s' % env.host_string)
+    # 上传配置文件
+    upload_template(
+        filename=join(FILE_DIR, 'kubeadm-ha', 'create-config.sh'),
+        destination='/root/kubeadm-ha/create-config.sh',
+        context={
+            'masterName1': config.Master1.hostname,
+            'masterName2': config.Master2.hostname,
+            'masterName3': config.Master3.hostname,
+            'masterIP1': config.Master1.ip,
+            'masterIP2': config.Master2.ip,
+            'masterIP3': config.Master3.ip,
+            'virtualIP': config.VirtualIP,
+            'podSubnet': config.PodSubnet.replace('/', '\\\\/'),
+            'svcSubnet': config.SvcSubnet.replace('/', '\\\\/'),
+            'localIP': env.host_string,
+            'kaState': 'MASTER' if env.host_string == config.Master1.ip else 'BACKUP',
+            'etcdName': name,
+            'priority': priority,
+            'interface': config.Interface,
+            'gateway': config.NetworkGateway,
+        },
+        use_sudo=True
+    )
+    with cd('/root/kubeadm-ha'):
+        sudo('bash ./create-config.sh')
+
+
 def installEtcd(config):
     '''
         安装etcd
     '''
-    if env.host_string == config.Master1.ip:
-        name = 'etcd0'
-    elif env.host_string == config.Master2.ip:
-        name = 'etcd1'
-    elif env.host_string == config.Master3.ip:
-        name = 'etcd2'
-    else:
-        raise ValueError('unknow ip %s' % env.host_string)
-    
-    with settings(warn_only=True):
-        sudo('docker stop etcd')
-        sudo('docker rm etcd')
-        sudo('rm -rf /var/lib/etcd-cluster/')
-    
-    sudo('''docker run -d --restart always -v /etc/ssl/certs:/etc/ssl/certs -v /var/lib/etcd-cluster:/var/lib/etcd -p 4001:4001 -p 2380:2380 -p 2379:2379 --name etcd gcr.io/google_containers/etcd-amd64:3.0.17 etcd --name={name} --advertise-client-urls=http://{ip}:2379,http://{ip}:4001 --listen-client-urls=http://0.0.0.0:2379,http://0.0.0.0:4001 --initial-advertise-peer-urls=http://{ip}:2380 --listen-peer-urls=http://0.0.0.0:2380 --initial-cluster-token=9477af68bbee1b9ae037d6fd9e7efefd --initial-cluster=etcd0=http://{master_ip1}:2380,etcd1=http://{master_ip2}:2380,etcd2=http://{master_ip3}:2380 --initial-cluster-state=new --auto-tls --peer-auto-tls --data-dir=/var/lib/etcd'''.format(
-        ip=env.host_string,
-        master_ip1=config.Master1.ip,
-        master_ip2=config.Master2.ip,
-        master_ip3=config.Master3.ip,
-        name=name
-    ))
+    sudo('kubeadm reset')
+    sudo('rm -rf /var/lib/etcd-cluster')
+    with cd('/root/kubeadm-ha/'):
+        sudo('docker-compose --file etcd/docker-compose.yaml stop')
+        sudo('docker-compose --file etcd/docker-compose.yaml rm -f')
+        sudo('docker-compose --file etcd/docker-compose.yaml up -d')
 
 
 def main():
@@ -61,6 +89,7 @@ def main():
     config = InstallConfig.loadConfig(args.config_file)
     config.initFabric(not args.quiet)
 
+    execute(prepareConfig, config=config, hosts=config.getMasters())
     execute(installEtcd, config=config, hosts=config.getMasters())
 
 

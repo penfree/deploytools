@@ -23,6 +23,18 @@ class InstallConfig(object):
         self.ssh_config = ssh_config
     
     @property
+    def DockerComposeVersion(self):
+        return self.k8s_config.get('dockerComposeVersion')
+    
+    @property
+    def NetworkGateway(self):
+        return self.k8s_config.get('networkGateway')
+
+    @property
+    def SvcSubnet(self):
+        return self.k8s_config.get('svcSubnet')
+
+    @property
     def DockerVersion(self):
         return self.k8s_config.get('dockerVersion')
 
@@ -47,6 +59,14 @@ class InstallConfig(object):
             @Brief: 负载均衡的api server端口
         '''
         return self.k8s_config.get('apiHAPort', 8443)
+    
+    @property
+    def Token(self):
+        return self.k8s_config.get('token')
+    
+    @property
+    def TokenHash(self):
+        return self.k8s_config.get('tokenHash')
 
     @property
     def ImagePath(self):

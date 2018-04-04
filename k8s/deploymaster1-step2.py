@@ -24,38 +24,24 @@ FILE_DIR = os.path.join(CURRENT_DIR, 'files')
 def getArgument():
     parser = ArgumentParser()
     parser.add_argument('-q', dest='quiet', action='store_true')
-    parser.add_argument('--config', dest='config_file', required=True)
+    parser.add_argument('--config', dest='config_file')
     return parser.parse_args()
 
 
-def installFlannel(config):
-    '''
-        @Brief: 安装flannel
-    '''
-    # 安装flannel
-    sudo('mkdir -p /root/k8sinstall/kube-flannel')
-    # 上传配置文件
-    upload_template(
-        filename=join(FILE_DIR, 'kube-flannel', 'step2-kube-flannel-v0.7.1.yml'),
-        destination='/root/k8sinstall/kube-flannel/step2-kube-flannel-v0.7.1.yml',
-        context={
-            'podSubnet': config.PodSubnet
-        },
-        use_sudo=True
-    )
-    put(
-        local_path=join(FILE_DIR, 'kube-flannel', 'step1-kube-flannel-rbac-v0.7.1.yml'),
-        remote_path='/root/k8sinstall/kube-flannel/step1-kube-flannel-rbac-v0.7.1.yml',
-        use_sudo=True
-    )
-    sudo('kubectl create -f /root/k8sinstall/kube-flannel')
-    
+def installDashboard(config):
+    sudo('kubectl taint nodes --all node-role.kubernetes.io/master-')
+    with cd('/root/kubeadm-ha/'):
+        sudo('kubectl apply -f kube-dashboard/')
+        sudo('kubectl apply -f kube-heapster/influxdb/')
+        sudo('kubectl apply -f kube-heapster/rbac/')
+
 
 def main():
     args = getArgument()
     config = InstallConfig.loadConfig(args.config_file)
     config.initFabric(not args.quiet)
 
-    execute(installFlannel, config=config, hosts=[config.Master1.ip])
+    execute(installDashboard, config=config, hosts=[config.Master1.ip])
+
 
 main()

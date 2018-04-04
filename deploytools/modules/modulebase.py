@@ -63,8 +63,11 @@ class ModuleBase(object):
         '''
             获取ip列表
         '''
-        if self.allow_partial_deploy:
-            return [res.ip for res in self.resources if not context.deploy_host or res.name in context.deploy_host]
+        if self.allow_partial_deploy and context.deploy_host:
+            tmp = [res.ip for res in self.resources if res.name in context.deploy_host]
+            if not tmp:
+                tmp = context.deploy_host
+            return tmp
         else:
             return [res.ip for res in self.resources]
 

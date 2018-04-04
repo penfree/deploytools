@@ -2,29 +2,47 @@
 
 ## 安装前准备
 * linux版本： centos7.3
-* 准备需要的docker镜像， 打包好的k8s.tar拷贝到所有机器上 
+* 准备需要的docker镜像， 打包好的k8s.tar拷贝到所有机器上, 已准备好的文件在 ftp://192.168.95.2/k8s/k8s-1.9.3.tar.gz
 ```
 # pull镜像，需要科学上网
 
-docker pull gcr.io/google_containers/kube-proxy-amd64:v1.7.5
-docker pull gcr.io/google_containers/kube-apiserver-amd64:v1.7.5
-docker pull gcr.io/google_containers/kube-controller-manager-amd64:v1.7.5
-docker pull gcr.io/google_containers/kube-scheduler-amd64:v1.7.5
-docker pull gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.4
-docker pull gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.4
-docker pull gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.4
-docker pull nginx:latest
-docker pull gcr.io/google_containers/kubernetes-dashboard-amd64:v1.6.1
-docker pull quay.io/coreos/flannel:v0.7.1-amd64
-docker pull gcr.io/google_containers/heapster-amd64:v1.3.0
-docker pull gcr.io/google_containers/etcd-amd64:3.0.17
-docker pull gcr.io/google_containers/heapster-grafana-amd64:v4.0.2
-docker pull gcr.io/google_containers/heapster-influxdb-amd64:v1.1.1
+# kuberentes basic components
+docker pull gcr.io/google_containers/kube-apiserver-amd64:v1.9.3
+docker pull gcr.io/google_containers/kube-proxy-amd64:v1.9.3
+docker pull gcr.io/google_containers/kube-scheduler-amd64:v1.9.3
+docker pull gcr.io/google_containers/kube-controller-manager-amd64:v1.9.3
+docker pull gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.7
+docker pull gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.7
+docker pull gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.7
+docker pull gcr.io/google_containers/etcd-amd64:3.1.10
 docker pull gcr.io/google_containers/pause-amd64:3.0
+
+# kubernetes networks add ons
+docker pull quay.io/coreos/flannel:v0.9.1-amd64
+docker pull quay.io/calico/node:v3.0.3
+docker pull quay.io/calico/kube-controllers:v2.0.1
+docker pull quay.io/calico/cni:v2.0.1
+
+# kubernetes dashboard
+docker pull gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.3
+
+# kubernetes heapster
+docker pull gcr.io/google_containers/heapster-influxdb-amd64:v1.3.3
+docker pull gcr.io/google_containers/heapster-grafana-amd64:v4.4.3
+docker pull gcr.io/google_containers/heapster-amd64:v1.4.2
+
+# kubernetes apiserver load balancer
+docker pull nginx:latest
 
 # 将镜像导出成一个包
 
-docker save -o k8s.tar gcr.io/google_containers/kube-proxy-amd64:v1.7.5 gcr.io/google_containers/kube-apiserver-amd64:v1.7.5 gcr.io/google_containers/kube-controller-manager-amd64:v1.7.5 gcr.io/google_containers/kube-scheduler-amd64:v1.7.5 gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.4 gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.4 gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.4 nginx:latest gcr.io/google_containers/kubernetes-dashboard-amd64:v1.6.1 quay.io/coreos/flannel:v0.7.1-amd64 gcr.io/google_containers/heapster-amd64:v1.3.0 gcr.io/google_containers/etcd-amd64:3.0.17 gcr.io/google_containers/heapster-grafana-amd64:v4.0.2 gcr.io/google_containers/heapster-influxdb-amd64:v1.1.1 gcr.io/google_containers/pause-amd64:3.0
+docker save -o k8s.tar  gcr.io/google_containers/kube-apiserver-amd64:v1.9.3 gcr.io/google_containers/kube-proxy-amd64:v1.9.3 gcr.io/google_containers/kube-scheduler-amd64:v1.9.3 \
+ gcr.io/google_containers/kube-controller-manager-amd64:v1.9.3  gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.7  gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.7 \
+ gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.7  gcr.io/google_containers/etcd-amd64:3.1.10  gcr.io/google_containers/pause-amd64:3.0 \
+ quay.io/coreos/flannel:v0.9.1-amd64  quay.io/calico/node:v3.0.3  quay.io/calico/kube-controllers:v2.0.1  quay.io/calico/cni:v2.0.1 \
+ gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.3 gcr.io/google_containers/heapster-influxdb-amd64:v1.3.3 \
+ gcr.io/google_containers/heapster-grafana-amd64:v4.4.3  gcr.io/google_containers/heapster-amd64:v1.4.2  nginx:latest
+
 ```
 
 * 准备配置文件
