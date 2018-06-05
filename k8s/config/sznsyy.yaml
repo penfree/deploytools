@@ -1,0 +1,25 @@
+---
+k8s:
+  interface: eth0
+  dockerVersion: 17.03.1.ce-1.el7.centos
+  dockerComposeVersion: 1.9.0
+  k8sVersion: 1.9.3
+  imagePath: /root/k8s.tar.gz
+  master1: 
+    ip: 10.240.244.12
+    hostname: s1.sznsyy-bdmd.com
+  master2: 
+    ip: 10.240.244.13
+    hostname: s2.sznsyy-bdmd.com
+  master3: 
+    ip: 10.240.244.14
+    hostname: s3.sznsyy-bdmd.com
+  podSubnet: 10.244.0.0/16
+  svcSubnet: 10.245.0.0/16
+  virtualIP: 10.240.244.16
+  slaves:
+  networkGateway: 10.240.240.1
+ssh:
+  user: root
+  identityFile: /Users/f/cert/pcloud.key
+  password: ''

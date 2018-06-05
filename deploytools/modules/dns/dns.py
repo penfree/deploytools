@@ -144,3 +144,5 @@ class DNSModule(ModuleBase):
             }
         )
         sudo('systemctl restart named')
+        sudo('firewall-cmd --add-service=dns --permanent')
+        sudo('firewall-cmd --reload')

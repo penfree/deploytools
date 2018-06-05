@@ -41,7 +41,7 @@ class CentosBasicModule(ModuleBase):
                 self.pypi_pkg = yaml.load(df)
 
         # yum源
-        self.use_aliyun_repo = kwargs['yum'].get('user_aliyun_repo', False)
+        self.use_aliyun_repo = kwargs['yum'].get('use_aliyun_repo', False)
         self.yum_use_proxy = kwargs['yum'].get('use_proxy', False)
         # pip源
         self.pip_index_url = kwargs['pip'].get('index')
@@ -52,6 +52,8 @@ class CentosBasicModule(ModuleBase):
         # http_proxy
         self.http_proxy = kwargs.get('http_proxy')
         self.ssh_key = kwargs.get('ssh_key')
+        # 使用的物理网卡ID
+        self.interface = kwargs.get('interface', 'em1')
 
     def processCommand(self, context, args):
         """
@@ -95,14 +97,14 @@ class CentosBasicModule(ModuleBase):
             @Brief: 添加访问公有云的路由
         '''
         router_ip = context.resource(self.router).ip
-        if not exists('/etc/sysconfig/network-scripts/route-em1') or not contains("/etc/sysconfig/network-scripts/route-em1", "192.168.95.0/24"):
+        if not exists('/etc/sysconfig/network-scripts/route-%s' % self.interface) or not contains("/etc/sysconfig/network-scripts/route-%s" % self.interface, "192.168.95.0/24"):
             with settings(warn_only=True):
                 sudo('ip route add 192.168.95.0/24 via %s' % router_ip)
-                append('/etc/sysconfig/network-scripts/route-em1', '192.168.95.0/24 via %s' % router_ip)
-        if not exists('/etc/sysconfig/network-scripts/route-em1') or not contains("/etc/sysconfig/network-scripts/route-em1", "192.168.50.0/24"):
+                append('/etc/sysconfig/network-scripts/route-%s' % self.interface, '192.168.95.0/24 via %s' % router_ip)
+        if not exists('/etc/sysconfig/network-scripts/route-%s' % self.interface) or not contains("/etc/sysconfig/network-scripts/route-%s" % self.interface, "192.168.50.0/24"):
             with settings(warn_only=True):
                 sudo('ip route add 192.168.50.0/24 via %s' % router_ip)
-                append('/etc/sysconfig/network-scripts/route-em1', '192.168.50.0/24 via %s' % router_ip)
+                append('/etc/sysconfig/network-scripts/route-%s' % self.interface, '192.168.50.0/24 via %s' % router_ip)
 
     def addYumProxy(self):
         '''
@@ -169,18 +171,18 @@ trusted-host={trusted_host}
         sudo('update-ca-trust extract')
     
     def useIptables(self, context):
-        with settings(warn_only=True):
-            result = sudo('systemctl status iptables')
-            if not result.failed:
-                return
+        #with settings(warn_only=True):
+        #    result = sudo('systemctl status iptables')
+        #    if not result.failed:
+        #        return
         # disable selinux
         sudo("sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config")
-        sudo('yum install iptables-services -y')
-        sudo('systemctl mask firewalld')
-        # sudo('systemctl enable iptables')
-        sudo('systemctl stop firewalld')
-        # sudo('systemctl start iptables')
-        # sudo('iptables --flush')
+        #sudo('yum install iptables-services -y')
+        #sudo('systemctl mask firewalld')
+        #sudo('systemctl enable iptables')
+        #sudo('systemctl stop firewalld')
+        #sudo('systemctl start iptables')
+        sudo('/sbin/iptables --flush')
         if self.router:
             router_ip = context.resource(self.router).ip
             if env.host_string == router_ip:
@@ -228,7 +230,7 @@ trusted-host={trusted_host}
     @retry(3)
     def installPackages(self):
         with settings(warn_only=True):
-            ret = sudo('yum install -y wget lrzsz vim zip telnet net-tools rsync libxslt-devel python-devel gcc glibc-devel libcap-devel python-pycurl nfs-utils')
+            ret = sudo('yum install -y wget lrzsz vim zip ntp telnet net-tools rsync libxslt-devel python-devel gcc glibc-devel libcap-devel python-pycurl nfs-utils')
             if ret.failed:
                 return False
             else:

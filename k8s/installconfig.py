@@ -109,7 +109,7 @@ class InstallConfig(object):
         '''
             @Brief: 所有的slave, ip的数组
         '''
-        return self.k8s_config.get('slaves', [])
+        return self.k8s_config.get('slaves', []) or []
 
     @property
     def SSHUser(self):

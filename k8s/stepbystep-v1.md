@@ -107,6 +107,7 @@ kube-system   kube-scheduler-s1.yuhuatai-bdmd.com            1/1       Running  
   * 执行deploymaster-step2.py, 完成dashboard, heapster的部署
     * 执行完成后在master1上执行kubectl get pods --all-namespaces -o wide等待所有pods状态为running
     * 访问https://master1:30000可以看到dashboard的界面
+    * 获取dashboard用的token kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
 ```
 
 [root@s1 ~]# kubectl get po  --all-namespaces -w
@@ -118,7 +119,7 @@ kube-system   kube-flannel-ds-4s9nx                          2/2       Running  
 kube-system   kube-proxy-d61ck                               1/1       Running   0          3m
 kube-system   kube-scheduler-s1.yuhuatai-bdmd.com            1/1       Running   1          2m
 ```
-  * 执行setupha-step1.py 部署master2, master3
+  * 执行deployha-step1.py 部署master2, master3
     * 等待所有pod都处于running状态
     * ping virtualIP, 检查keepalived配置是否成功
     * curl -k https://virtualip:16443 检查负载均衡是否成功
@@ -137,5 +138,7 @@ kube-system   kube-scheduler-s1.yuhuatai-bdmd.com            1/1       Running  
     * py joinslave.py --config config/test.yaml --slave slaveip --init
     * 如果slave节点之前已经在配置文件中配置过, 则不需要指定--slave和--init, 配置文件中的slave节点会自动加入
     * 如果是一个新增节点,则需要先进行机器初始化 然后加--init选项
+
+  
   
 

@@ -38,12 +38,12 @@ def joinCluster(config):
     sudo('kubeadm reset')
     sudo('kubeadm join --ignore-preflight-errors=Swap --token %s %s:%s --discovery-token-ca-cert-hash %s' % (config.Token, config.Master1.ip, 6443, config.TokenHash))
 
-    # 将slave节点上server修改为高可用的虚拟IP和负载均衡的16443端口
+    # 将slave节点上server修改为高可用的虚拟IP和负载均衡的16443端
     sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/bootstrap-kubelet.conf'.format(master=config.Master1.ip, vip=config.VirtualIP))
     sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/bootstrap-kubelet.conf'.format(master=config.Master2.ip, vip=config.VirtualIP))
     sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/bootstrap-kubelet.conf'.format(master=config.Master3.ip, vip=config.VirtualIP))
 
-    time.sleep(5) 
+    time.sleep(5)
 
     sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/kubelet.conf'.format(master=config.Master1.ip, vip=config.VirtualIP))
     sudo('sed -i "s/{master}:6443/{vip}:16443/g" /etc/kubernetes/kubelet.conf'.format(master=config.Master2.ip, vip=config.VirtualIP))

@@ -19,4 +19,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 # NOTE:
 #	1. The ip/mask should be configured for each private network
 #	2. The tap0 interface is the default openvpn client interface, it depends if multiple openvpn servers is connected 
-/usr/sbin/iptables -t nat -A POSTROUTING -s $ADDR -o tap0 -j MASQUERADE
+# /usr/sbin/iptables -t nat -A POSTROUTING -s $ADDR -o tap0 -j MASQUERADE
+firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o tap0 -j MASQUERADE -s $ADDR
+firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -o tap0 -j ACCEPT
+firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i tap0 -m state --state RELATED,ESTABLISHED -j ACCEPT

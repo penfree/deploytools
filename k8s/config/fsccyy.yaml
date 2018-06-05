@@ -1,0 +1,31 @@
+---
+k8s:
+  interface: eno1
+  dockerVersion: 17.03.1.ce-1.el7.centos
+  dockerComposeVersion: 1.9.0
+  k8sVersion: 1.9.3
+  imagePath: /root/k8s.tar.gz
+  master1: 
+    ip: 200.100.100.205
+    hostname: s1.fsccyy-bdmd.com
+  master2: 
+    ip: 200.100.100.206
+    hostname: s2.fsccyy-bdmd.com
+  master3: 
+    ip: 200.100.100.207
+    hostname: s3.fsccyy-bdmd.com
+  podSubnet: 10.244.0.0/16
+  svcSubnet: 10.96.0.0/12
+  virtualIP: 200.100.100.211
+  slaves:
+    - 200.100.100.208
+    - 200.100.100.209
+    - 200.100.100.210
+  networkGateway: 200.100.100.254
+  token: "7f276c.0741d82a5337f526"
+  tokenHash: "sha256:07b29eca48505e64fa543467ed981fb3135572fb6f0c9508331b903953fdaedb"
+ssh:
+  user: root
+  identityFile: /Users/f/cert/pcloud.key
+  password: ''
+  gateway: fsccyy.bdmd.com

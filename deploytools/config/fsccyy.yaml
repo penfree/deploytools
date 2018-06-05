@@ -1,0 +1,37 @@
+---
+#Need Change
+resources:
+    s1:
+        hostname: s1.fsccyy-bdmd.com
+        ip: 200.100.100.205
+    s2:
+        hostname: s2.fsccyy-bdmd.com
+        ip: 200.100.100.206
+    s3:
+        hostname: s3.fsccyy-bdmd.com
+        ip: 200.100.100.207
+    s4:
+        hostname: s4.fsccyy-bdmd.com
+        ip: 200.100.100.208
+    s5:
+        hostname: s5.fsccyy-bdmd.com
+        ip: 200.100.100.209
+    s6:
+        hostname: s6.fsccyy-bdmd.com
+        ip: 200.100.100.210
+#Need Change
+domain: fsccyy-bdmd.com
+#Need Change
+modules:
+    cbasic:
+        priority: 0
+        yum:
+            use_proxy: true
+            use_aliyun_repo: true
+        pip:
+            index: "http://mirrors.aliyun.com/pypi/simple/"
+            trusted_host: mirrors.aliyun.com
+            use_proxy: true
+        router: s1
+        http_proxy: http://192.168.50.12:3128
+        ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDnko3/WSc0HXB80m8ZkTmXBc+MjB4TaZZvapYPMMvs4MYtTpJhlxqjNAO5zYIx9oyLXmCMuE60iZaI00QnXEuGEaJfrFYr/lpApOnOEiBP/GyG89hTjwKnEFyn9Qze0MsMcBGu4BN4VwIic5aXiZwHQ5heM8Tu2jjJi6Opbcmp3YtuED4lwnYBDlf8etiW2EwNfaDH2y3f/X/rtKRJ7eMWCL0oDe7iF1oTUQDhiSND3jcfyPvoK597sbEz0ne15D3UygPSyFvtMO+8gDJwzdduIUCa6iSM18igxDpEoWJmBl2cst2x/b2KADjF9YHkHNoKmHRrfynfhmqXiMOiwurl root@s1"

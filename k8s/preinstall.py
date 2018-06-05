@@ -30,8 +30,8 @@ def getArgument():
 
 def basicConfig(config):
     # 配置repo
-    put(local_path=join(FILE_DIR, 'k8s.repo'), remote_path='/etc/yum.repos.d/kubernetes.repo', use_sudo=True)
     put(local_path=join(FILE_DIR, 'docker-ce.repo'), remote_path='/etc/yum.repos.d/docker-ce.repo', use_sudo=True)
+    put(local_path=join(FILE_DIR, 'k8s.repo'), remote_path='/etc/yum.repos.d/kubernetes.repo', use_sudo=True)
     sudo("yum makecache fast")
 
 
@@ -51,8 +51,14 @@ def basicConfig(config):
     
     # 关闭selinux
     sudo("sed -i -e 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config")
+    sudo('yum install -y wget lrzsz vim zip telnet net-tools rsync libxslt-devel python-devel gcc glibc-devel libcap-devel python-pycurl nfs-utils')
 
-    
+    with settings(warn_only=True):
+        ret = sudo('pip --version')
+        if ret.failed:
+            sudo('wget ftp://192.168.95.2/get-pip.py -O /tmp/get-pip.py')
+            sudo('python /tmp/get-pip.py')
+
     with settings(warn_only=True):
         ret = sudo('systemctl status firewalld')
         if ret.failed:
