@@ -22,6 +22,6 @@ NAME2MODULE = {
     'testmodule': TestModule,
     'openvpn': OpenvpnModule,
     #'basic': BasicModule,
-    'dns-server': DNSModule,
+    'dns': DNSModule,
     'cbasic': CentosBasicModule,
 }

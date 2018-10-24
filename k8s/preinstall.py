@@ -89,6 +89,7 @@ def basicConfig(config):
 
 
     # 安装docker, kubeadm, kubelet
+    sudo('yum install -y openldap-devel')
     sudo('yum install -y --setopt=obsoletes=0 docker-ce-{version} docker-ce-selinux-{version}'.format(version=config.DockerVersion))
     sudo('pip install  docker-compose==%s' % config.DockerComposeVersion)
     sudo('yum install -y kubelet-%s' % config.K8sVersion)

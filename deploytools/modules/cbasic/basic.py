@@ -105,6 +105,11 @@ class CentosBasicModule(ModuleBase):
             with settings(warn_only=True):
                 sudo('ip route add 192.168.50.0/24 via %s' % router_ip)
                 append('/etc/sysconfig/network-scripts/route-%s' % self.interface, '192.168.50.0/24 via %s' % router_ip)
+    
+    def setNTP(self, context):
+        """定时同步时间
+        """
+        append('/etc/cron.d/ntpd', "0 * * * * root ntpdate -u ntp.bdmd.com", use_sudo=True)
 
     def addYumProxy(self):
         '''
@@ -225,6 +230,9 @@ trusted-host={trusted_host}
         # 安装基本软件包
         execute(self.installPackages, hosts=self.getHostList(context))
 
+        # 配置ntp
+        execute(self.setNTP, context, hosts=self.getHostList(context))
+
         return True
 
     @retry(3)
@@ -233,13 +241,21 @@ trusted-host={trusted_host}
             ret = sudo('yum install -y wget lrzsz vim zip ntp telnet net-tools rsync libxslt-devel python-devel gcc glibc-devel libcap-devel python-pycurl nfs-utils')
             if ret.failed:
                 return False
-            else:
-                return True
-            ret = sudo('pip install ujson simplejson thrift python-dateutil pyes pymongo lxml mock pyth Jinja2 pyin requests gevent==1.1rc3 pyyaml redis hiredis happybase ply arrow pymime haigha pillow captcha pdfkit python-prctl pyopenssl pycrypto netifaces cryptography cchardet numpy pandas elasticsearch==2.4.0 xlrd jieba numpy')
+            ret = sudo('pip install ujson simplejson thrift python-dateutil pyes pymongo lxml mock pyth Jinja2 pyin requests gevent==1.1rc3 pyyaml redis hiredis happybase ply arrow pymime haigha pillow captcha pdfkit python-prctl pyopenssl pycrypto netifaces cryptography cchardet numpy pandas elasticsearch==2.4.0 xlrd jieba numpy fabric==1.14.0')
             if ret.failed:
                 return False
             else:
                 return True
+    
+
+            # 安装nginx
+            put(join(CURRENT_DIR, 'nginx.rpm'), '/tmp/nginx.rpm', use_sudo=True)
+            ret = sudo('rpm -Uvh /tmp/nginx.rpm')
+            if ret.failed:
+                return False
+            ret = sudo('yum install -y nginx')
+            
+        
 
     def setHostName(self):
         '''
@@ -248,28 +264,3 @@ trusted-host={trusted_host}
         hostname = self.ip2host(env.host_string)
         sudo("hostname  %s" % hostname)
         sudo('echo "%s" > /etc/hostname' % hostname)
-
-    @retry(3)
-    def installPackage(self, pkg_type, pkg_name):
-        '''
-            安装debian和pip包, 这里的安装允许出错
-        '''
-        with settings(warn_only=True):
-            if pkg_type == 'deb':
-                ret = sudo("apt-get install -y --force-yes -qq %s" % pkg_name)
-                if ret.failed:
-                    LOG.error('[%s] install failed' % pkg_name)
-                    return False
-                else:
-                    LOG.info('[%s] install successfully' % pkg_name)
-                    return True
-            elif pkg_type == 'pip':
-                ret = sudo(
-                    'pip install -q --disable-pip-version-check %s' % pkg_name)
-                if ret.failed:
-                    LOG.error('[%s] install failed' % pkg_name)
-                    return False
-                else:
-                    LOG.info('[%s] install successfully' % pkg_name)
-                    return True
-        return True

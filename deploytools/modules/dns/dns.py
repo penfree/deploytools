@@ -37,7 +37,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class DNSModule(ModuleBase):
-    NAME = 'dns-server'
+    NAME = 'dns'
 
     def __init__(self, resource_map={}, group_map={}, **kwargs):
         ModuleBase.__init__(self, resource_map, group_map, **kwargs)

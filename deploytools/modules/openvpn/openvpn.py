@@ -42,16 +42,30 @@ class OpenvpnModule(ModuleBase):
         #   如果使用跳板机，则在跳板机上通过创建端口映射，这里填写映射后的ip和端口
         self.server_ip = kwargs.get('server_ip', 'tun.iyoudoctor.com')
         self.server_port = kwargs.get('server_port', 10190)
-    
+
     def installStunnel(self, context):
         '''
             @Brief: 安装stunnel
         '''
         put(
-            local_path=join(CURRENT_DIR, 'stunnel-4.56-6.el7.x86_64.rpm'), 
+            local_path=join(CURRENT_DIR, 'stunnel-4.56-6.el7.x86_64.rpm'),
             remote_path='/tmp/stunnel.rpm',
             use_sudo=True
         )
+        with settings(warn_only=True):
+        #    sudo('systemctl stop firewalld')
+        #    sudo('systemctl mask firewalld')
+            sudo('setenforce 0')
+        put(
+            local_path=join(CURRENT_DIR, 'pkcs11-helper-1.11-3.el7.x86_64.rpm'),
+            remote_path='/tmp/pkcs11-helper.rpm',
+            use_sudo=True
+        )
+        with settings(warn_only=True):
+            ret = sudo('rpm -i /tmp/pkcs11-helper.rpm')
+            if ret.failed and 'already installed' not in ret.stdout and 'already installed' not in ret.stderr:
+                raise ValueError('Install pkcs11-helper failed')
+
         with settings(warn_only=True):
             ret = sudo('rpm -i /tmp/stunnel.rpm')
             if ret.failed and 'already installed' not in ret.stdout and  'already installed' not in ret.stderr:
@@ -99,18 +113,9 @@ class OpenvpnModule(ModuleBase):
         #    sudo('systemctl stop firewalld')
         #    sudo('systemctl mask firewalld')
             sudo('setenforce 0')
-        put(
-            local_path=join(CURRENT_DIR, 'pkcs11-helper-1.11-3.el7.x86_64.rpm'), 
-            remote_path='/tmp/pkcs11-helper.rpm',
-            use_sudo=True
-        )
-        with settings(warn_only=True):
-            ret = sudo('rpm -i /tmp/pkcs11-helper.rpm')
-            if ret.failed and 'already installed' not in ret.stdout and 'already installed' not in ret.stderr:
-                raise ValueError('Install pkcs11-helper failed')
 
         put(
-            local_path=join(CURRENT_DIR, 'openvpn-2.4.3-1.el7.x86_64.rpm'), 
+            local_path=join(CURRENT_DIR, 'openvpn-2.4.3-1.el7.x86_64.rpm'),
             remote_path='/tmp/openvpn.rpm',
             use_sudo=True
         )
@@ -123,14 +128,24 @@ class OpenvpnModule(ModuleBase):
         put(join(CURRENT_DIR, 'ta.key'), '/etc/openvpn/', use_sudo=True)
         put(join(CURRENT_DIR, 'update-resolv-conf'), '/etc/openvpn/', use_sudo=True, mode='0755')
         put(join(CURRENT_DIR, 'setup_client_router.sh'), '/etc/openvpn/', use_sudo=True, mode='0755')
-        put(join(CURRENT_DIR, 'up.sh'), '/etc/openvpn/', use_sudo=True, mode='0755')
         put(join(CURRENT_DIR, 'vpn.cert.pem'), '/etc/openvpn/', use_sudo=True)
+        tmp = env.host_string.split('.')
+        tmp[-1] = '0'
+        subnet = '.'.join(tmp)
+        # put(join(CURRENT_DIR, 'up.sh'), '/etc/openvpn/', use_sudo=True, mode='0755')
+        upload_template(
+            join(CURRENT_DIR, 'up.sh'),
+            '/etc/openvpn/up.sh',
+            context={"subnet": subnet},
+            use_sudo=True,
+            mode='0755'
+        )
         client = self.getClient(context, env.host_string)
         put(client.cert, '/etc/openvpn/', use_sudo=True)
         put(client.key, '/etc/openvpn/', use_sudo=True)
         upload_template(
-            join(CURRENT_DIR, 'client.conf'), 
-            '/etc/openvpn/client.conf', 
+            join(CURRENT_DIR, 'client.conf'),
+            '/etc/openvpn/client.conf',
             context={'vpnCert': os.path.basename(client.cert), 'vpnKey': os.path.basename(client.key)}
         )
         sudo('systemctl enable openvpn@client.service')
